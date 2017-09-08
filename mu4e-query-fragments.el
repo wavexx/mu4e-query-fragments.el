@@ -20,11 +20,11 @@
 
 ;;; Commentary:
 
-;; `mu4e-query-fragments' allows to define query snippets ("fragments") that
-;; can be used in regular `mu4e' searches or bookmars. Fragments can be used to
-;; define complex filters to apply in existing searches, or supplant bookmarks
-;; entirely. Fragments compose properly with regular mu4e/xapian operators, and
-;; can be arbitrarily nested.
+;; `mu4e-query-fragments' allows to define query snippets ("fragments")
+;; that can be used in regular `mu4e' searches or bookmars. Fragments
+;; can be used to define complex filters to apply in existing searches,
+;; or supplant bookmarks entirely. Fragments compose properly with
+;; regular mu4e/xapian operators, and can be arbitrarily nested.
 ;;
 ;; To use `mu4e-query-fragments', use the following:
 ;;
@@ -46,13 +46,13 @@
 ;;;###autoload
 (defvar mu4e-qf-fragments nil
   "Define query fragments available in `mu4e' searches and bookmarks.
-List of (FRAGMENT . EXPANSION), where FRAGMENT is the string to be substituted
-and EXPANSION is the query string to be expanded.
+List of (FRAGMENT . EXPANSION), where FRAGMENT is the string to be
+substituted and EXPANSION is the query string to be expanded.
 
-FRAGMENT should be an unique text symbol that doesn't conflict with the regular
-mu4e/xapian search syntax or previous fragments. EXPANSION is expanded
-as (EXPANSION), composing properly with boolean operators and can contain
-fragments in itself.
+FRAGMENT should be an unique text symbol that doesn't conflict with the
+regular mu4e/xapian search syntax or previous fragments. EXPANSION is
+expanded as (EXPANSION), composing properly with boolean operators and
+can contain fragments in itself.
 
 Example:
 
