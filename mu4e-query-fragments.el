@@ -29,22 +29,22 @@
 ;; To use `mu4e-query-fragments', use the following:
 ;;
 ;; (require 'mu4e-query-fragments)
-;; (setq mu4e/qf-fragments
+;; (setq mu4e-qf-fragments
 ;;   '(("%junk" . "maildir:/Junk OR subject:SPAM")
 ;;     ("%hidden" . "flag:trashed OR %junk")))
 ;;
-;; The terms %junk and %hidden can subsequently be used anywhere in mu4e. See
-;; the documentation of `mu4e/qf-fragments' for more details.
+;; The terms %junk and %hidden can subsequently be used anywhere in
+;; mu4e. See the documentation of `mu4e-qf-fragments' for more details.
 ;;
-;; Fragments are *not* shown expanded in order to keep the modeline short. To
-;; test an expansion, use `mu4e/qf-query-expand'.
+;; Fragments are *not* shown expanded in order to keep the modeline
+;; short. To test an expansion, use `mu4e-qf-query-expand'.
 
 ;;; Code:
 
 (require 'mu4e)
 
 ;;;###autoload
-(defvar mu4e/qf-fragments nil
+(defvar mu4e-qf-fragments nil
   "Define query fragments available in `mu4e' searches and bookmarks.
 List of (FRAGMENT . EXPANSION), where FRAGMENT is the string to be substituted
 and EXPANSION is the query string to be expanded.
@@ -56,11 +56,11 @@ fragments in itself.
 
 Example:
 
-\(setq mu4e/qf-fragments
+\(setq mu4e-qf-fragments
    '((\"%junk\" . \"maildir:/Junk OR subject:SPAM\")
      (\"%hidden\" . \"flag:trashed OR %junk\")))")
 
-(defun mu4e/qf--expand-1 (frags str)
+(defun mu4e-qf--expand-1 (frags str)
   (if (null frags) str
     (with-syntax-table (standard-syntax-table)
       (let ((case-fold-search nil))
@@ -70,24 +70,24 @@ Example:
 	 str t t)))))
 
 ;;;###autoload
-(defun mu4e/qf-query-expand (query)
-  "Expand fragments defined in `mu4e/qf-fragments' in QUERY."
+(defun mu4e-qf-query-expand (query)
+  "Expand fragments defined in `mu4e-qf-fragments' in QUERY."
   (let (tmp (frags (mapcar (lambda (entry)
 			     (cons (car entry) (concat "(" (cdr entry) ")")))
-			   mu4e/qf-fragments)))
+			   mu4e-qf-fragments)))
     ;; expand recursively until nothing is substituted
     (while (not (string-equal
-		 (setq tmp (mu4e/qf--expand-1 frags query))
+		 (setq tmp (mu4e-qf--expand-1 frags query))
 		 query))
       (setq query tmp)))
   query)
 
-(defun mu4e/qf--proc-find-query-expand (args)
+(defun mu4e-qf--proc-find-query-expand (args)
   (let ((query (car args))
 	(rest (cdr args)))
-    (cons (mu4e/qf-query-expand query) rest)))
+    (cons (mu4e-qf-query-expand query) rest)))
 
-(advice-add 'mu4e~proc-find :filter-args 'mu4e/qf--proc-find-query-expand)
+(advice-add 'mu4e~proc-find :filter-args 'mu4e-qf--proc-find-query-expand)
 
 (provide 'mu4e-query-fragments)
 
