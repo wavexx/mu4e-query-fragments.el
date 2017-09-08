@@ -3,7 +3,7 @@
 ;; Author: Yuri D'Elia <wavexx@thregr.org>
 ;; Version: 1.0
 ;; URL: https://github.com/wavexx/mu4e-query-fragments.el
-;; Package-Requires: ((emacs "24.4") mu4e)
+;; Package-Requires: ((emacs "24.4"))
 ;; Keywords: mu4e, mail, convenience
 
 ;; This file is NOT part of GNU Emacs.
