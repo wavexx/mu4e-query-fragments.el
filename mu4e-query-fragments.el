@@ -26,12 +26,17 @@
 ;; or supplant bookmarks entirely. Fragments compose properly with
 ;; regular mu4e/xapian operators, and can be arbitrarily nested.
 ;;
+;; `mu4e-query-fragments' can also append a default filter to new
+;; queries, using `mu4e-qf-append-to-new-queries'. Default filters are
+;; very often useful to exclude junk messages from regular queries.
+;;
 ;; To use `mu4e-query-fragments', use the following:
 ;;
 ;; (require 'mu4e-query-fragments)
 ;; (setq mu4e-qf-fragments
 ;;   '(("%junk" . "maildir:/Junk OR subject:SPAM")
 ;;     ("%hidden" . "flag:trashed OR %junk")))
+;; (setq mu4e-qf-append-to-new-queries "AND NOT %hidden")
 ;;
 ;; The terms %junk and %hidden can subsequently be used anywhere in
 ;; mu4e. See the documentation of `mu4e-qf-fragments' for more details.
@@ -59,6 +64,10 @@ Example:
 \(setq mu4e-qf-fragments
    '((\"%junk\" . \"maildir:/Junk OR subject:SPAM\")
      (\"%hidden\" . \"flag:trashed OR %junk\")))")
+
+;;;###autoload
+(defvar mu4e-qf-append-to-new-queries nil
+  "Query fragment appended to new searches by `mu4e-qf-search-headers'.")
 
 (defun mu4e-qf--expand-1 (frags str)
   (if (null frags) str
@@ -88,6 +97,18 @@ Example:
     (cons (mu4e-qf-query-expand query) rest)))
 
 (advice-add 'mu4e~proc-find :filter-args 'mu4e-qf--proc-find-query-expand)
+
+(defun mu4e-qf-headers-search (&optional arg)
+  "Search for EXPR and switch to the output buffer for the results.
+Like `mu4e-headers-search', but appends `mu4e-qf-append-to-new-queries'
+at the end of the query if called without a prefix argument."
+  (interactive "P")
+  (if (or (not (null arg)) (null mu4e-qf-append-to-new-queries))
+      (mu4e-headers-search)
+    (let ((expr (read-string "Search for: " nil 'mu4e~headers-search-hist)))
+      (mu4e-headers-search (concat expr " " mu4e-qf-append-to-new-queries)))))
+
+(define-key mu4e-headers-mode-map (kbd "s") 'mu4e-qf-headers-search)
 
 (provide 'mu4e-query-fragments)
 
