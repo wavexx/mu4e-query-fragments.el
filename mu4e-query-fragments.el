@@ -27,29 +27,30 @@
 ;; regular mu4e/xapian operators, and can be arbitrarily nested.
 ;;
 ;; `mu4e-query-fragments' can also append a default filter to new
-;; queries, using `mu4e-qf-append-to-new-queries'. Default filters are
+;; queries, using `mu4e-query-fragments-append'. Default filters are
 ;; very often useful to exclude junk messages from regular queries.
 ;;
 ;; To use `mu4e-query-fragments', use the following:
 ;;
 ;; (require 'mu4e-query-fragments)
-;; (setq mu4e-qf-fragments
+;; (setq mu4e-query-fragments-list
 ;;   '(("%junk" . "maildir:/Junk OR subject:SPAM")
 ;;     ("%hidden" . "flag:trashed OR %junk")))
-;; (setq mu4e-qf-append-to-new-queries "AND NOT %hidden")
+;; (setq mu4e-query-fragments-append "AND NOT %hidden")
 ;;
 ;; The terms %junk and %hidden can subsequently be used anywhere in
-;; mu4e. See the documentation of `mu4e-qf-fragments' for more details.
+;; mu4e. See the documentation of `mu4e-query-fragments-list' for more
+;; details.
 ;;
 ;; Fragments are *not* shown expanded in order to keep the modeline
-;; short. To test an expansion, use `mu4e-qf-query-expand'.
+;; short. To test an expansion, use `mu4e-query-fragments-expand'.
 
 ;;; Code:
 
 (require 'mu4e)
 
 ;;;###autoload
-(defvar mu4e-qf-fragments nil
+(defvar mu4e-query-fragments-list nil
   "Define query fragments available in `mu4e' searches and bookmarks.
 List of (FRAGMENT . EXPANSION), where FRAGMENT is the string to be
 substituted and EXPANSION is the query string to be expanded.
@@ -61,15 +62,15 @@ can contain fragments in itself.
 
 Example:
 
-\(setq mu4e-qf-fragments
+\(setq mu4e-query-fragments-list
    '((\"%junk\" . \"maildir:/Junk OR subject:SPAM\")
      (\"%hidden\" . \"flag:trashed OR %junk\")))")
 
 ;;;###autoload
-(defvar mu4e-qf-append-to-new-queries nil
-  "Query fragment appended to new searches by `mu4e-qf-search-headers'.")
+(defvar mu4e-query-fragments-append nil
+  "Query fragment appended to new searches by `mu4e-query-fragments-search'.")
 
-(defun mu4e-qf--expand-1 (frags str)
+(defun mu4e-query-fragments--expand-1 (frags str)
   (if (null frags) str
     (with-syntax-table (standard-syntax-table)
       (let ((case-fold-search nil))
@@ -79,36 +80,36 @@ Example:
 	 str t t)))))
 
 ;;;###autoload
-(defun mu4e-qf-query-expand (query)
-  "Expand fragments defined in `mu4e-qf-fragments' in QUERY."
+(defun mu4e-query-fragments-expand (query)
+  "Expand fragments defined in `mu4e-query-fragments-list' in QUERY."
   (let (tmp (frags (mapcar (lambda (entry)
 			     (cons (car entry) (concat "(" (cdr entry) ")")))
-			   mu4e-qf-fragments)))
+			   mu4e-query-fragments-list)))
     ;; expand recursively until nothing is substituted
     (while (not (string-equal
-		 (setq tmp (mu4e-qf--expand-1 frags query))
+		 (setq tmp (mu4e-query-fragments--expand-1 frags query))
 		 query))
       (setq query tmp)))
   query)
 
-(defun mu4e-qf--proc-find-query-expand (args)
+(defun mu4e-query-fragments--proc-find-query-expand (args)
   (let ((query (car args))
 	(rest (cdr args)))
-    (cons (mu4e-qf-query-expand query) rest)))
+    (cons (mu4e-query-fragments-expand query) rest)))
 
-(advice-add 'mu4e~proc-find :filter-args 'mu4e-qf--proc-find-query-expand)
+(advice-add 'mu4e~proc-find :filter-args 'mu4e-query-fragments--proc-find-query-expand)
 
-(defun mu4e-qf-headers-search (&optional arg)
+(defun mu4e-query-fragments-search (&optional arg)
   "Search for EXPR and switch to the output buffer for the results.
-Like `mu4e-headers-search', but appends `mu4e-qf-append-to-new-queries'
-at the end of the query if called without a prefix argument."
+Like `mu4e-headers-search', but appends `mu4e-query-fragments-append' at
+the end of the query if called without a prefix argument."
   (interactive "P")
-  (if (or (not (null arg)) (null mu4e-qf-append-to-new-queries))
+  (if (or (not (null arg)) (null mu4e-query-fragments-append))
       (mu4e-headers-search)
     (let ((expr (read-string "Search for: " nil 'mu4e~headers-search-hist)))
-      (mu4e-headers-search (concat expr " " mu4e-qf-append-to-new-queries)))))
+      (mu4e-headers-search (concat expr " " mu4e-query-fragments-append)))))
 
-(define-key mu4e-headers-mode-map (kbd "s") 'mu4e-qf-headers-search)
+(define-key mu4e-headers-mode-map (kbd "s") 'mu4e-query-fragments-search)
 
 (provide 'mu4e-query-fragments)
 
