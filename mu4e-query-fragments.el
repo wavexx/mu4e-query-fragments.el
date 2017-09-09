@@ -82,6 +82,7 @@ Example:
 ;;;###autoload
 (defun mu4e-query-fragments-expand (query)
   "Expand fragments defined in `mu4e-query-fragments-list' in QUERY."
+  (interactive "MQuery: ")
   (let (tmp (frags (mapcar (lambda (entry)
 			     (cons (car entry) (concat "(" (cdr entry) ")")))
 			   mu4e-query-fragments-list)))
@@ -90,6 +91,8 @@ Example:
 		 (setq tmp (mu4e-query-fragments--expand-1 frags query))
 		 query))
       (setq query tmp)))
+  (when (called-interactively-p 'interactive)
+    (message "%s" query))
   query)
 
 (defun mu4e-query-fragments--proc-find-query-expand (args)
