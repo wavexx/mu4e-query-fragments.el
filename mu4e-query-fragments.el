@@ -49,8 +49,12 @@
 
 (require 'mu4e)
 
+(defgroup mu4e-query-fragments nil
+  "Query fragments extension"
+  :group 'mu4e)
+
 ;;;###autoload
-(defvar mu4e-query-fragments-list nil
+(defcustom mu4e-query-fragments-list nil
   "Define query fragments available in `mu4e' searches and bookmarks.
 List of (FRAGMENT . EXPANSION), where FRAGMENT is the string to be
 substituted and EXPANSION is the query string to be expanded.
@@ -64,11 +68,14 @@ Example:
 
 \(setq mu4e-query-fragments-list
    '((\"%junk\" . \"maildir:/Junk OR subject:SPAM\")
-     (\"%hidden\" . \"flag:trashed OR %junk\")))")
+     (\"%hidden\" . \"flag:trashed OR %junk\")))"
+  :type '(alist :key-type (string :tag "Fragment")
+		:value-type (string :tag "Expansion")))
 
 ;;;###autoload
-(defvar mu4e-query-fragments-append nil
-  "Query fragment appended to new searches by `mu4e-query-fragments-search'.")
+(defcustom mu4e-query-fragments-append nil
+  "Query fragment appended to new searches by `mu4e-query-fragments-search'."
+  :type '(choice (const nil) (string)))
 
 (defun mu4e-query-fragments--expand-1 (frags str)
   (if (null frags) str
