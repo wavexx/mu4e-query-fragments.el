@@ -98,6 +98,9 @@ Example:
 		 (setq tmp (mu4e-query-fragments--expand-1 frags query))
 		 query))
       (setq query tmp)))
+  ;; cleanup whitespace and newlines
+  (setq query (replace-regexp-in-string "[[:space:]\n]+" " " query))
+  ;; show the expansion if interactive
   (when (called-interactively-p 'interactive)
     (message "%s" query))
   query)
